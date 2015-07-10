@@ -1,9 +1,12 @@
-# React TodoMVC Example
+# React + MOBservable TodoMVC Example
 
 > React is a JavaScript library for creating user interfaces. Its core principles are declarative code, efficiency, and flexibility. Simply specify what your component looks like and React will keep it up-to-date when the underlying data changes.
 
 > _[React - facebook.github.io/react](http://facebook.github.io/react)_
 
+> MOBservable is light-weight stand-alone library to create reactive primitives, functions, arrays and objects. Its goal is to make developers happy and productive. It loves React.
+
+> _[MOBservable](https://github.com/mweststrate/MOBservable)_
 
 ## Learning React
 
@@ -13,26 +16,18 @@ Here are some links you may find helpful:
 
 * [Documentation](http://facebook.github.io/react/docs/getting-started.html)
 * [API Reference](http://facebook.github.io/react/docs/reference.html)
-* [Blog](http://facebook.github.io/react/blog/)
-* [React on GitHub](https://github.com/facebook/react)
-* [Support](http://facebook.github.io/react/support.html)
 
-Articles and guides from the community:
+## Learning MOBservable
 
-* [Philosophy](http://www.quora.com/Pete-Hunt/Posts/React-Under-the-Hood)
-* [How is Facebook's React JavaScript library](http://www.quora.com/React-JS-Library/How-is-Facebooks-React-JavaScript-library)
-* [React: Under the hood](http://www.quora.com/Pete-Hunt/Posts/React-Under-the-Hood)
+The examples in the documentation are probably the best place to get started.
 
-Get help from other React users:
+* [MOBservable readme with examples](https://github.com/mweststrate/MOBservable/blob/master/README.md)
+* [Philosophy and in-depth analysis of MOBservable](https://www.mendix.com/tech-blog/making-react-reactive-pursuit-high-performing-easily-maintainable-react-apps/)
 
-* [React on StackOverflow](http://stackoverflow.com/questions/tagged/reactjs)
-* [Mailing list on Google Groups](https://groups.google.com/forum/#!forum/reactjs)
-*
-_If you have other helpful links to share, or find any of the links above no longer work, please [let us know](https://github.com/tastejs/todomvc/issues)._
-
+_If you have any questions or issues concerning this example of MOBservable in general, just file an issue at the [github repo](https://github.com/mweststrate/MOBservable/issues)_
 
 ## Running
 
 The app is built with [JSX](http://facebook.github.io/react/docs/jsx-in-depth.html) and compiled at runtime for a lighter and more fun code reading experience. As stated in the link, JSX is not mandatory.
 
-To run the app, spin up an HTTP server (e.g. `python -m SimpleHTTPServer`) and visit http://localhost/.../myexample/.
+To run the app, spin up an HTTP server (e.g. `npm install -g servant && servant`) and visit http://localhost:3000

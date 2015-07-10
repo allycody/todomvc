@@ -2,22 +2,28 @@
 /*jshint white:false */
 /*jshint trailing:false */
 /*jshint newcap:false */
-/*global React */
+/*global React, mobservable */
 var app = app || {};
 
 (function () {
 	'use strict';
 
-	app.TodoFooter = React.createClass({
+	app.TodoFooter = mobservable.ObservingComponent(React.createClass({
 		render: function () {
-			var activeTodoWord = app.Utils.pluralize(this.props.count, 'item');
+			var model = this.props.model;
+			var nowShowing = this.props.viewModel.nowShowing;
+
+			if (!model.activeTodoCount && !model.completedCount)
+				return null;
+
+			var activeTodoWord = app.Utils.pluralize(model.activeTodoCount, 'item');
 			var clearButton = null;
 
-			if (this.props.completedCount > 0) {
+			if (model.completedCount > 0) {
 				clearButton = (
 					<button
 						id="clear-completed"
-						onClick={this.props.onClearCompleted}>
+						onClick={this.clearCompleted}>
 						Clear completed
 					</button>
 				);
@@ -25,11 +31,10 @@ var app = app || {};
 
 			// React idiom for shortcutting to `classSet` since it'll be used often
 			var cx = React.addons.classSet;
-			var nowShowing = this.props.nowShowing;
 			return (
 				<footer id="footer">
 					<span id="todo-count">
-						<strong>{this.props.count}</strong> {activeTodoWord} left
+						<strong>{model.activeTodoCount}</strong> {activeTodoWord} left
 					</span>
 					<ul id="filters">
 						<li>
@@ -59,6 +64,10 @@ var app = app || {};
 					{clearButton}
 				</footer>
 			);
+		},
+
+		clearCompleted: function () {
+			this.props.model.clearCompleted();
 		}
-	});
+	}));
 })();

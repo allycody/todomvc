@@ -2,7 +2,7 @@
 /*jshint white:false */
 /*jshint trailing:false */
 /*jshint newcap:false */
-/*global React, Router*/
+/*global React, Router, mobservable*/
 var app = app || {};
 
 (function () {
@@ -11,25 +11,35 @@ var app = app || {};
 	app.ALL_TODOS = 'all';
 	app.ACTIVE_TODOS = 'active';
 	app.COMPLETED_TODOS = 'completed';
+
+	// This is the model of the state of our view
+	// For separation of concerns, we defined this separately
+	// from the model of our data (see todoModel.js) and the components itself
+	// because it is relevant for multiple components, but that is just a matter of taste.
+	app.ViewModel = function() {
+		mobservable.props(this, {
+			nowShowing: app.ALL_TODOS
+		});
+	};
+
 	var TodoFooter = app.TodoFooter;
 	var TodoItem = app.TodoItem;
 
 	var ENTER_KEY = 13;
 
-	var TodoApp = React.createClass({
+	var TodoApp = mobservable.ObservingComponent(React.createClass({
 		getInitialState: function () {
 			return {
-				nowShowing: app.ALL_TODOS,
 				editing: null
 			};
 		},
 
 		componentDidMount: function () {
-			var setState = this.setState;
+			var viewModel = this.props.viewModel;
 			var router = Router({
-				'/': setState.bind(this, {nowShowing: app.ALL_TODOS}),
-				'/active': setState.bind(this, {nowShowing: app.ACTIVE_TODOS}),
-				'/completed': setState.bind(this, {nowShowing: app.COMPLETED_TODOS})
+				'/': function() { viewModel.nowShowing = app.ALL_TODOS; },
+				'/active': function() { viewModel.nowShowing = app.ACTIVE_TODOS; },
+				'/completed': function() { viewModel.nowShowing = app.COMPLETED_TODOS; }
 			});
 			router.init('/');
 		},
@@ -75,23 +85,20 @@ var app = app || {};
 			this.setState({editing: null});
 		},
 
-		clearCompleted: function () {
-			this.props.model.clearCompleted();
-		},
-
 		render: function () {
-			var footer;
 			var main;
 			var todos = this.props.model.todos;
+			var model = this.props.model;
+			var viewModel = this.props.viewModel;
 
 			var shownTodos = todos.filter(function (todo) {
-				switch (this.state.nowShowing) {
-				case app.ACTIVE_TODOS:
-					return !todo.completed;
-				case app.COMPLETED_TODOS:
-					return todo.completed;
-				default:
-					return true;
+				switch (viewModel.nowShowing) {
+					case app.ACTIVE_TODOS:
+						return !todo.completed;
+					case app.COMPLETED_TODOS:
+						return todo.completed;
+					default:
+						return true;
 				}
 			}, this);
 
@@ -110,22 +117,8 @@ var app = app || {};
 				);
 			}, this);
 
-			var activeTodoCount = todos.reduce(function (accum, todo) {
-				return todo.completed ? accum : accum + 1;
-			}, 0);
-
-			var completedCount = todos.length - activeTodoCount;
-
-			if (activeTodoCount || completedCount) {
-				footer =
-					<TodoFooter
-						count={activeTodoCount}
-						completedCount={completedCount}
-						nowShowing={this.state.nowShowing}
-						onClearCompleted={this.clearCompleted}
-					/>;
-			}
-
+			// Footer logic was pushed into the footer widget
+			// Calculations were pushed to the model itself
 			if (todos.length) {
 				main = (
 					<section id="main">
@@ -133,7 +126,7 @@ var app = app || {};
 							id="toggle-all"
 							type="checkbox"
 							onChange={this.toggleAll}
-							checked={activeTodoCount === 0}
+							checked={model.activeTodoCount === 0}
 						/>
 						<ul id="todo-list">
 							{todoItems}
@@ -155,21 +148,19 @@ var app = app || {};
 						/>
 					</header>
 					{main}
-					{footer}
+					<TodoFooter model={model} viewModel={viewModel} />
 				</div>
 			);
 		}
-	});
+	}));
 
-	var model = new app.TodoModel('react-todos');
+	var model = new app.TodoModel('react-mobservable-todos');
+	var viewModel = new app.ViewModel();
 
-	function render() {
-		React.render(
-			<TodoApp model={model}/>,
-			document.getElementById('todoapp')
-		);
-	}
+	// Render once, all subscriptions are managed automatically
+	React.render(
+		<TodoApp model={model} viewModel={viewModel}/>,
+		document.getElementById('todoapp')
+	);
 
-	model.subscribe(render);
-	render();
 })();
