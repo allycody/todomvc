@@ -2,86 +2,89 @@
 /*jshint white:false */
 /*jshint trailing:false */
 /*jshint newcap:false */
+/*global mobservable */
+
 var app = app || {};
 
 (function () {
 	'use strict';
 
 	var Utils = app.Utils;
-	// Generic "model" object. You can use whatever
-	// framework you want. For this application it
-	// may not even be worth separating this logic
-	// out, but we do this to demonstrate one way to
-	// separate out parts of your application.
-	app.TodoModel = function (key) {
-		this.key = key;
-		this.todos = Utils.store(key);
-		this.onChanges = [];
+
+	// This is the model of our data. We aslo put derived data in here, for easier re-use,
+	// Note that all data in the model is reactive 
+	// So changes in the todo's array automatically propage to computed properties like activeTodoCount
+	// And to any relevant components a piece of data of the model that was used inside that component is changed.
+	app.TodoModel = function(key) {
+		mobservable.props(this, {
+			key: key,
+			todos: [],
+			activeTodoCount: function() {
+				return this.todos.reduce(function (accum, todo) {
+					return todo.completed ? accum : accum + 1;
+				}, 0);
+			},
+			completedCount: function() {
+				return this.todos.length - this.activeTodoCount;
+			}
+		});
+		this.readModelFromLocalStorage();
+		this.subscribeLocalStorageToModel();
 	};
 
-	app.TodoModel.prototype.subscribe = function (onChange) {
-		this.onChanges.push(onChange);
+	app.TodoModel.prototype.readModelFromLocalStorage = function(model) {
+		Utils.getDataFromStore(this.key).map(function(data) {
+			this.todos.push(new app.Todo(data.id, data.title, data.completed));
+		}, this);
+	}
+
+	app.TodoModel.prototype.subscribeLocalStorageToModel = function(model) {
+		// store the model whenever the key or todos (or something inside that) changes
+		// localStorage itself isn't an observing thing, so that is why we rely
+		// on sideEffect to observe and pass on the data to the storage
+		mobservable.sideEffect(function() {
+			Utils.storeData(this.key, this.todos);
+		}, this);
 	};
 
-	app.TodoModel.prototype.inform = function () {
-		Utils.store(this.key, this.todos);
-		this.onChanges.forEach(function (cb) { cb(); });
+	// Class that represents a Todo item (it is not necessary to use a class, but it is nice)
+	app.Todo = function(id, title, completed) {
+		mobservable.props(this, {
+			id: id,
+			title: title,
+			completed: completed
+		});
 	};
+
 
 	app.TodoModel.prototype.addTodo = function (title) {
-		this.todos = this.todos.concat({
-			id: Utils.uuid(),
-			title: title,
-			completed: false
-		});
-
-		this.inform();
+		this.todos.push(new app.Todo(Utils.uuid(), title, false));
+		// Note: no inform() calls anymore! All changes in the model
+		// are automatically propagated to the proper components
 	};
 
 	app.TodoModel.prototype.toggleAll = function (checked) {
-		// Note: it's usually better to use immutable data structures since they're
-		// easier to reason about and React works very well with them. That's why
-		// we use map() and filter() everywhere instead of mutating the array or
-		// todo items themselves.
-		this.todos = this.todos.map(function (todo) {
-			return Utils.extend({}, todo, {completed: checked});
+		this.todos.forEach(function (todo) {
+			todo.completed = checked;
 		});
-
-		this.inform();
 	};
 
 	app.TodoModel.prototype.toggle = function (todoToToggle) {
-		this.todos = this.todos.map(function (todo) {
-			return todo !== todoToToggle ?
-				todo :
-				Utils.extend({}, todo, {completed: !todo.completed});
-		});
-
-		this.inform();
+		todoToToggle.completed = !todoToToggle.completed;
 	};
 
 	app.TodoModel.prototype.destroy = function (todo) {
-		this.todos = this.todos.filter(function (candidate) {
-			return candidate !== todo;
-		});
-
-		this.inform();
+		this.todos.remove(todo);
 	};
 
 	app.TodoModel.prototype.save = function (todoToSave, text) {
-		this.todos = this.todos.map(function (todo) {
-			return todo !== todoToSave ? todo : Utils.extend({}, todo, {title: text});
-		});
-
-		this.inform();
+		todoToSave.title = text;
 	};
 
 	app.TodoModel.prototype.clearCompleted = function () {
 		this.todos = this.todos.filter(function (todo) {
 			return !todo.completed;
 		});
-
-		this.inform();
 	};
 
 })();

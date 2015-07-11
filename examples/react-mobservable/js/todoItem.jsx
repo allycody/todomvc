@@ -2,7 +2,7 @@
 /*jshint white: false */
 /*jshint trailing: false */
 /*jshint newcap: false */
-/*global React */
+/*global React, mobservable */
 var app = app || {};
 
 (function () {
@@ -11,7 +11,7 @@ var app = app || {};
 	var ESCAPE_KEY = 27;
 	var ENTER_KEY = 13;
 
-	app.TodoItem = React.createClass({
+	app.TodoItem = mobservable.ObservingComponent(React.createClass({
 		handleSubmit: function (event) {
 			var val = this.state.editText.trim();
 			if (val) {
@@ -44,20 +44,7 @@ var app = app || {};
 			return {editText: this.props.todo.title};
 		},
 
-		/**
-		 * This is a completely optional performance enhancement that you can
-		 * implement on any React component. If you were to delete this method
-		 * the app would still work correctly (and still be very performant!), we
-		 * just use it as an example of how little code it takes to get an order
-		 * of magnitude performance improvement.
-		 */
-		shouldComponentUpdate: function (nextProps, nextState) {
-			return (
-				nextProps.todo !== this.props.todo ||
-				nextProps.editing !== this.props.editing ||
-				nextState.editText !== this.state.editText
-			);
-		},
+		// ObservingComponent optimizes shouldComponentUpdate for us, so no need to do that manually
 
 		/**
 		 * Safely manipulate the DOM after updating the state when invoking
@@ -102,5 +89,5 @@ var app = app || {};
 				</li>
 			);
 		}
-	});
+	}));
 })();

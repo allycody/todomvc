@@ -2,7 +2,7 @@
 /*jshint white:false */
 /*jshint trailing:false */
 /*jshint newcap:false */
-/*global React, Router*/
+/*global React, Router, mobservable*/
 var app = app || {};
 
 (function () {
@@ -16,7 +16,8 @@ var app = app || {};
 
 	var ENTER_KEY = 13;
 
-	var TodoApp = React.createClass({
+	// This decorator makes sure that this component re-renders if any observed model data is changed.
+	var TodoApp = mobservable.ObservingComponent(React.createClass({
 		getInitialState: function () {
 			return {
 				nowShowing: app.ALL_TODOS,
@@ -110,11 +111,8 @@ var app = app || {};
 				);
 			}, this);
 
-			var activeTodoCount = todos.reduce(function (accum, todo) {
-				return todo.completed ? accum : accum + 1;
-			}, 0);
-
-			var completedCount = todos.length - activeTodoCount;
+			var activeTodoCount = model.activeTodoCount;
+			var completedCount = model.completedCount;;
 
 			if (activeTodoCount || completedCount) {
 				footer =
@@ -159,17 +157,12 @@ var app = app || {};
 				</div>
 			);
 		}
-	});
+	}));
 
-	var model = new app.TodoModel('react-todos');
-
-	function render() {
-		React.render(
-			<TodoApp model={model}/>,
-			document.getElementById('todoapp')
-		);
-	}
-
-	model.subscribe(render);
-	render();
+	var model = new app.TodoModel('react-mobservable-todos');
+	// Render once, all subscriptions are managed automatically
+	React.render(
+		<TodoApp model={model}/>,
+		document.getElementById('todoapp')
+	);
 })();

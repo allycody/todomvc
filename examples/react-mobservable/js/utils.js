@@ -25,11 +25,13 @@ var app = app || {};
 			return count === 1 ? word : word + 's';
 		},
 
-		store: function (namespace, data) {
+		storeData: function (namespace, data) {
 			if (data) {
-				return localStorage.setItem(namespace, JSON.stringify(data));
+				localStorage.setItem(namespace, JSON.stringify(data));
 			}
+		},
 
+		getDataFromStore: function(namespace) {
 			var store = localStorage.getItem(namespace);
 			return (store && JSON.parse(store)) || [];
 		},
