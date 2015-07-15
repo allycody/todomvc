@@ -12,6 +12,7 @@
 
 The examples in the documentation are probably the best place to get started.
 
+* This [diff](https://github.com/mweststrate/todomvc/commit/2e30caeb8c690c914f92081ac01d12097a068a1e) shows the difference with vanilla ReactJS (using immutable data structures) and ReactJS + MOBservable
 * [MOBservable readme with examples](https://github.com/mweststrate/MOBservable/blob/master/README.md)
 * [Philosophy and in-depth analysis of MOBservable](https://www.mendix.com/tech-blog/making-react-reactive-pursuit-high-performing-easily-maintainable-react-apps/)
 
