@@ -2,7 +2,7 @@
   "private": true,
   "dependencies": {
     "director": "^1.2.0",
-    "mobservable": "^0.5.2",
+    "mobservable": "^0.6.0",
     "react": "^0.13.3",
     "todomvc-app-css": "^1.0.0",
     "todomvc-common": "^1.0.1"
