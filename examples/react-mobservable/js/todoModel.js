@@ -12,11 +12,11 @@ var app = app || {};
 	var Utils = app.Utils;
 
 	// This is the model of our data. We aslo put derived data in here, for easier re-use,
-	// Note that all data in the model is reactive 
+	// Note that all data in the model is reactive
 	// So changes in the todo's array automatically propage to computed properties like activeTodoCount
 	// And to any relevant components a piece of data of the model that was used inside that component is changed.
 	app.TodoModel = function(key) {
-		mobservable.props(this, {
+		mobservable.extendReactive(this, {
 			key: key,
 			todos: [],
 			activeTodoCount: function() {
@@ -34,7 +34,7 @@ var app = app || {};
 
 	app.TodoModel.prototype.readModelFromLocalStorage = function(model) {
 		Utils.getDataFromStore(this.key).map(function(data) {
-			this.todos.push(new app.Todo(data.id, data.title, data.completed));
+			this.todos.push(app.createTodo(data.id, data.title, data.completed));
 		}, this);
 	}
 
@@ -48,17 +48,17 @@ var app = app || {};
 	};
 
 	// Class that represents a Todo item (it is not necessary to use a class, but it is nice)
-	app.Todo = function(id, title, completed) {
-		mobservable.props(this, {
+	app.createTodo = function(id, title, completed) {
+		return {
 			id: id,
 			title: title,
 			completed: completed
-		});
+		};
 	};
 
 
 	app.TodoModel.prototype.addTodo = function (title) {
-		this.todos.push(new app.Todo(Utils.uuid(), title, false));
+		this.todos.push(app.createTodo(Utils.uuid(), title, false));
 		// Note: no inform() calls anymore! All changes in the model
 		// are automatically propagated to the proper components
 	};

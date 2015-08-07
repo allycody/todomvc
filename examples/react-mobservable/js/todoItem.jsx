@@ -11,7 +11,7 @@ var app = app || {};
 	var ESCAPE_KEY = 27;
 	var ENTER_KEY = 13;
 
-	app.TodoItem = mobservable.ObservingComponent(React.createClass({
+	app.TodoItem = mobservable.reactiveComponent(React.createClass({
 		handleSubmit: function (event) {
 			var val = this.state.editText.trim();
 			if (val) {
@@ -44,7 +44,7 @@ var app = app || {};
 			return {editText: this.props.todo.title};
 		},
 
-		// ObservingComponent optimizes shouldComponentUpdate for us, so no need to do that manually
+		// reactiveComponent optimizes shouldComponentUpdate for us, so no need to do that manually
 
 		/**
 		 * Safely manipulate the DOM after updating the state when invoking

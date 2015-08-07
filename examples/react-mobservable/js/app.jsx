@@ -17,7 +17,7 @@ var app = app || {};
 	var ENTER_KEY = 13;
 
 	// This decorator makes sure that this component re-renders if any observed model data is changed.
-	var TodoApp = mobservable.ObservingComponent(React.createClass({
+	var TodoApp = mobservable.reactiveComponent(React.createClass({
 		getInitialState: function () {
 			return {
 				nowShowing: app.ALL_TODOS,
